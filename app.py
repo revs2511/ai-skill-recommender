@@ -10,7 +10,7 @@ st.title("🔍 AI Skill Recommender Bot")
 st.markdown("Enter your skills to find the most relevant job roles from the AI market.")
 
 # 🔽 DOWNLOAD .pkl FILE FROM GOOGLE DRIVE
-file_id = "1ysLMY4BasEQ68zYo-qtoPaqGA_W8T9b_"
+file_id = "1ysLMY4BasEQ68zYo-qtoPaqGA_W8T9b_"  # Your actual .pkl file
 url = f"https://drive.google.com/uc?id={file_id}"
 output = "One-Hot-Encoded.pkl"
 gdown.download(url, output, quiet=False)
@@ -18,8 +18,8 @@ gdown.download(url, output, quiet=False)
 # 🔽 LOAD THE DATAFRAME
 df = pd.read_pickle(output)
 
-# 🔽 EXTRACT SKILL COLUMNS
-skill_columns = df.columns.difference(['job_title', 'job_skills'])
+# ✅ USE ONLY BINARY SKILL COLUMNS (same as in Colab)
+skill_columns = df.select_dtypes(include=['int', 'float', 'bool']).columns.tolist()
 job_vectors = df[skill_columns].values
 
 # 🔽 USER INPUT
@@ -27,25 +27,21 @@ user_input = st.text_input("🧠 Enter your known skills (comma-separated):", ""
 
 if user_input:
     user_skills = [skill.strip().lower() for skill in user_input.split(",")]
+
+    # Build vector
     user_vector = np.zeros(len(skill_columns))
-
-    # Normalize dataset column names
-    normalized_columns = [col.strip().lower() for col in skill_columns]
-    skill_index_map = {skill: i for i, skill in enumerate(normalized_columns)}
-
-    # Build user vector based on matching skills
     matched_skills = []
-    for skill in user_skills:
-        if skill in skill_index_map:
-            user_vector[skill_index_map[skill]] = 1
+
+    for i, skill in enumerate(skill_columns):
+        if skill.strip().lower() in user_skills:
+            user_vector[i] = 1
             matched_skills.append(skill)
 
-    # Show matched skills
     st.info(f"🧩 Matched Skills: {', '.join(matched_skills) if matched_skills else 'None'}")
 
     # 🔽 COSINE SIMILARITY
-    similarities = cosine_similarity([user_vector], job_vectors)[0]
-    df['Similarity'] = similarities
+    similarity_scores = cosine_similarity([user_vector], job_vectors)[0]
+    df['Similarity'] = similarity_scores
 
     # 🔽 TOP JOB MATCHES
     if df['Similarity'].max() > 0:

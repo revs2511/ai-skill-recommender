@@ -8,7 +8,7 @@ st.title("🔍 AI Skill Recommender Bot")
 st.markdown("Enter your skills to find the most relevant job roles from the AI market.")
 
 # Load file from Google Drive
-file_id = "https://colab.research.google.com/drive/1XPKOzJkTFH2472NpWabcTGsWqA1gdilW?usp=sharing"  # <--- Replace this
+file_id = "1XPKOzJkTFH2472NpWabcTGsWqA1gdilW"  # <--- Replace this
 url = f"https://drive.google.com/uc?id={file_id}"
 output = "One-Hot-Encoded.pkl"
 gdown.download(url, output, quiet=False)

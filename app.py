@@ -10,13 +10,21 @@ st.title("🔍 AI Skill Recommender Bot")
 st.markdown("Enter your skills to find the most relevant job roles from the AI market.")
 
 # 🔽 DOWNLOAD .pkl FILE FROM GOOGLE DRIVE
-file_id = "1HCoY1Dbsn_07xOfPZEST7oTAw_grETim"  # Your actual .pkl file
+file_id = "1HCoY1Dbsn_07xOfPZEST7oTAw_grETim"  # Your ~87MB file
 url = f"https://drive.google.com/uc?id={file_id}"
 output = "One-Hot-Encoded.pkl"
 gdown.download(url, output, quiet=False)
 
 # 🔽 LOAD THE DATAFRAME
-df = pd.read_pickle(output)
+try:
+    df = pd.read_pickle(output)
+    st.success("✅ File loaded successfully!")
+    st.write("🔍 Shape of DataFrame:", df.shape)
+    st.write("📋 First 5 columns:", df.columns.tolist()[:5])
+    st.write("🧪 Sample Row:", df.head(1))
+except Exception as e:
+    st.error(f"❌ Error loading file: {e}")
+    st.stop()
 
 # ✅ USE ONLY BINARY SKILL COLUMNS (same as in Colab)
 skill_columns = df.select_dtypes(include=['int', 'float', 'bool']).columns.tolist()
@@ -39,15 +47,19 @@ if user_input:
 
     st.info(f"🧩 Matched Skills: {', '.join(matched_skills) if matched_skills else 'None'}")
 
-    # 🔽 COSINE SIMILARITY
-    similarity_scores = cosine_similarity([user_vector], job_vectors)[0]
-    df['Similarity'] = similarity_scores
+    try:
+        # 🔽 COSINE SIMILARITY
+        similarity_scores = cosine_similarity([user_vector], job_vectors)[0]
+        df['Similarity'] = similarity_scores
 
-    # 🔽 TOP JOB MATCHES
-    if df['Similarity'].max() > 0:
-        top_matches = df.sort_values(by='Similarity', ascending=False).head(10)
-        st.subheader("✅ Top Matching Job Titles")
-        st.dataframe(top_matches[['job_title', 'Similarity']].reset_index(drop=True))
-        st.success(f"Best Match: {top_matches.iloc[0]['job_title']}")
-    else:
-        st.warning("⚠️ No close job matches found for your input. Try different or more skills.")
+        # 🔽 TOP JOB MATCHES
+        if df['Similarity'].max() > 0:
+            top_matches = df.sort_values(by='Similarity', ascending=False).head(10)
+            st.subheader("✅ Top Matching Job Titles")
+            st.dataframe(top_matches[['job_title', 'Similarity']].reset_index(drop=True))
+            st.success(f"Best Match: {top_matches.iloc[0]['job_title']}")
+        else:
+            st.warning("⚠️ No close job matches found for your input. Try different or more skills.")
+
+    except Exception as e:
+        st.error(f"❌ Error during similarity matching: {e}")

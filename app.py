@@ -10,7 +10,7 @@ st.title("🔍 AI Skill Recommender Bot")
 st.markdown("Enter your skills to find the most relevant job roles from the AI market.")
 
 # 🔽 DOWNLOAD .pkl FILE FROM GOOGLE DRIVE
-file_id = "1FgEnP1iwKTsozqnRhPYoSbbq5oD53JzS"  # Your actual .pkl file
+file_id = "1HCoY1Dbsn_07xOfPZEST7oTAw_grETim"  # Your actual .pkl file
 url = f"https://drive.google.com/uc?id={file_id}"
 output = "One-Hot-Encoded.pkl"
 gdown.download(url, output, quiet=False)
